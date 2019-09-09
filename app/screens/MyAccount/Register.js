@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { Button } from 'react-native-elements';
+import { StyleSheet, View } from "react-native";
+import { Button, Text } from 'react-native-elements';
 
 import t from 'tcomb-form-native';
 const Form = t.form.Form;
@@ -18,25 +18,34 @@ export default class Register extends Component {
                 email: "",
                 password: "",
                 passwordConfirmation: ""
-            }
+            },
+            formErrorMessage: ""
         };
     }
 
     register = () => {
         const { password, passwordConfirmation } = this.state.formData;
+        console.log(this.state.formData);
         if (password === passwordConfirmation) {
             console.log("Contraseñas iguales.");
             const validate = this.refs.registerForm.getValue();
+
             if (validate) {
                 console.log("Formulario correcto.");
-                console.log(this.state.formData);
+                this.setState({
+                    formErrorMessage: ""
+                })
             }
             else {
-                console.log("Formulario inválido.");
+                this.setState({
+                    formErrorMessage: "Formulario inválido."
+                })
             }
         }
         else {
-            console.log("Las contraseñas no coinciden.");
+            this.setState({
+                formErrorMessage: "Las contraseñas no coinciden."
+            })
         }
 
     };
@@ -48,7 +57,7 @@ export default class Register extends Component {
     }
 
     render() {
-        const { registerStruct, registerOptions } = this.state;
+        const { registerStruct, registerOptions, formErrorMessage } = this.state;
         return (
             < View style={styles.viewBody} >
                 <Form
@@ -58,7 +67,11 @@ export default class Register extends Component {
                     value={this.state.formData}
                     onChange={(formValue) => this.onChangeFormRegister(formValue)}
                 />
-                <Button title="Registrar" onPress={() => this.register()} />
+                <Button buttonStyle={styles.buttonRegisterContainer}
+                    title="Registrar" onPress={() => this.register()} />
+                <Text style={styles.formErrorMessage}>
+                    {formErrorMessage} </Text>
+
             </View >
         );
     }
@@ -70,5 +83,16 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginLeft: 40,
         marginRight: 40
+    },
+    buttonRegisterContainer: {
+        backgroundColor: "#00a680",
+        marginTop: 20,
+        marginLeft: 10,
+        marginRight: 10
+    },
+    formErrorMessage: {
+        color: "#f00",
+        textAlign: "center",
+        marginTop: 30
     }
 })

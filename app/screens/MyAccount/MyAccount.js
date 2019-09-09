@@ -11,7 +11,6 @@ export default class MyAccount extends Component {
     render() {
         return (
             < View style={styles.viewBody} >
-                <Text>My Account Screen.</Text>
                 <Button title="Registro" onPress={() => this.goToScreen("Register")} />
             </View >
         );
