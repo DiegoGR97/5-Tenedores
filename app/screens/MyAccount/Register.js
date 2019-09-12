@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Text } from 'react-native-elements';
+import Toast, { DURATION } from 'react-native-easy-toast';
 
 import t from 'tcomb-form-native';
 const Form = t.form.Form;
 import { RegisterStruct, RegisterOptions } from '../../forms/Register';
 
+import * as firebase from 'firebase';
 export default class Register extends Component {
     constructor() {
         super();
@@ -24,6 +26,7 @@ export default class Register extends Component {
     }
 
     register = () => {
+
         const { password, passwordConfirmation } = this.state.formData;
         console.log(this.state.formData);
         if (password === passwordConfirmation) {
@@ -34,6 +37,18 @@ export default class Register extends Component {
                 console.log("Formulario correcto.");
                 this.setState({
                     formErrorMessage: ""
+                });
+                firebase.auth().createUserWithEmailAndPassword(validate.email, validate.password).then(resolve => {
+                    //console.log("Registro correcto.");
+                    this.refs.toast.show('Registro exitoso.', 2000, () => {
+                        this.props.navigation.navigate("MyAccount");
+                        //También funciona.
+                        //this.props.navigation.goBack();
+
+                    });
+                }).catch(err => {
+                    this.refs.toast.show('El email ya está en uso', 2000);
+                    //console.log("Error en el registro:", err);
                 })
             }
             else {
@@ -71,6 +86,16 @@ export default class Register extends Component {
                     title="Registrar" onPress={() => this.register()} />
                 <Text style={styles.formErrorMessage}>
                     {formErrorMessage} </Text>
+                <Toast
+                    ref="toast"
+                    style={{ backgroundColor: 'black' }}
+                    position='bottom'
+                    positionValue={250}
+                    fadeInDuration={750}
+                    fadeOutDuration={1000}
+                    opacity={0.8}
+                    textStyle={{ color: '#fff' }}
+                />
 
             </View >
         );

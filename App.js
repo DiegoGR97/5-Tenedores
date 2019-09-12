@@ -3,6 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 //import HomeScreen from "./app/screens/Home";
 import UserNavigation from "./app/navigations/User";
 
+import firebaseConfig from './app/utils/Firebase';
+import * as firebase from 'firebase';
+firebase.initializeApp(firebaseConfig);
+
 export default function App() {
   return (
     <View style={styles.container}>
