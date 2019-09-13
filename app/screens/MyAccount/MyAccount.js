@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import { StyleSheet, View, Text } from "react-native";
-import { Button } from 'react-native-elements';
 
 import * as firebase from 'firebase';
+import MyAccountGuest from '../../components/MyAccount/MyAccountGuest';
+import MyAccountUser from '../../components/MyAccount/MyAccountUser';
+
 export default class MyAccount extends Component {
 
     constructor() {
@@ -44,23 +46,11 @@ export default class MyAccount extends Component {
         console.log("Me ejecuto segundo.");
         const { login } = this.state;
 
-
         if (login) {
-            return (
-                <View style={styles.viewBody}>
-                    <Text> Estás loggeado correctamente.</Text>
-                    <Button title="Cerrar sesión" onPress={() => this.logout()} />
-                </View>
-            );
+            return <MyAccountUser />;
         }
         else {
-            return (
-                < View style={styles.viewBody} >
-                    <Button title="Registro" onPress={() => this.goToScreen("Register")} />
-                    <Button title="Login" onPress={() => this.goToScreen("Login")} />
-
-                </View >
-            );
+            return <MyAccountGuest goToScreen={this.goToScreen} />;
         }
     }
 }

@@ -44,7 +44,10 @@ export default class Login extends Component {
             });
             firebase.auth().signInWithEmailAndPassword(validate.email, validate.password)
                 .then(() => {
-                    console.log("Login correcto.")
+                    console.log("Login correcto.");
+                    this.refs.toastLogin.show("Login correcto", 500, () => {
+                        this.props.navigation.goBack();
+                    });
                 }).catch(error => {
 
                     //Esta opción es más segura.
@@ -97,13 +100,15 @@ export default class Login extends Component {
 
         return (
             <View style={styles.viewBody}>
-                <Image
-                    source={require('../../../assets/img/5-tenedores-letras-icono-logo.png')}
-                    containerStyle={styles.containerLogo}
-                    style={styles.logo}
-                    PlaceholderContent={<ActivityIndicator />}
-                    resizeMode="contain"
-                />
+                <View style={styles.centeredImage} >
+                    <Image
+                        source={require('../../../assets/img/5-tenedores-letras-icono-logo.png')}
+                        containerStyle={styles.containerLogo}
+                        style={styles.logo}
+                        PlaceholderContent={<ActivityIndicator />}
+                        resizeMode="contain"
+                    />
+                </View>
 
                 <View style={styles.viewForm}>
                     <Form
@@ -116,7 +121,15 @@ export default class Login extends Component {
                         buttonStyle={styles.buttonLoginContainer}
                         title="Login"
                         onPress={() => this.login()} />
+
+                    <Text style={styles.textRegister}>
+                        ¿Aún no tienes una cuenta? {"  "}
+                        <Text style={styles.btnRegister}
+                            onPress={() => this.props.navigation.navigate("Register")}>Regístrate</Text>
+                    </Text>
+
                     <Text style={styles.loginErrorMessage}>{loginErrorMessage}</Text>
+
                     <Divider style={styles.divider} />
                     <SocialIcon
                         title='Iniciar sesión con Facebook'
@@ -144,12 +157,18 @@ export default class Login extends Component {
 const styles = StyleSheet.create({
     viewBody: {
         flex: 1,
-        marginLeft: 40,
-        marginRight: 40,
+        marginLeft: 30,
+        marginRight: 30,
         marginTop: 40,
     },
+    centeredImage: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
     containerLogo: {
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: "center",
+        display: "flex",
     },
     logo: {
         width: 300,
@@ -168,11 +187,22 @@ const styles = StyleSheet.create({
     loginErrorMessage: {
         color: "red",
         textAlign: "center",
-        marginTop: 20
+        marginTop: 20,
+        marginBottom: 20,
     },
     divider: {
         backgroundColor: "#00a680",
         marginBottom: 20
+    },
+    textRegister: {
+        marginTop: 15,
+        marginLeft: 10,
+        marginRight: 10
+    },
+    btnRegister: {
+        color: "#00a680",
+        fontWeight: "bold",
+
     }
 
 })
