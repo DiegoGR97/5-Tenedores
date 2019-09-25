@@ -80,7 +80,7 @@ export default class Login extends Component {
             }).catch(error => {
                 this.refs.toastLogin.show("Error accediendo a Firebase., inténtelo más tarde.");
             })
-            console.log("Credentials:", credentials);
+            //console.log("Credentials:", credentials);
         } else if (type == "cancel") {
             this.refs.toastLogin.show("Inicio de sesión cancelado", 500);
         } else {
@@ -89,7 +89,7 @@ export default class Login extends Component {
     };
 
     onChangeFormLogin = (formValue) => {
-        console.log("Changed form Login:", formValue);
+        //console.log("Changed form Login:", formValue);
         this.setState({
             loginData: formValue
         });

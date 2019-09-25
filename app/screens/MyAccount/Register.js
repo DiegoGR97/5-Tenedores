@@ -28,7 +28,7 @@ export default class Register extends Component {
     register = () => {
 
         const { password, passwordConfirmation } = this.state.formData;
-        console.log(this.state.formData);
+        //console.log(this.state.formData);
         if (password === passwordConfirmation) {
             console.log("Contraseñas iguales.");
             const validate = this.refs.registerForm.getValue();
