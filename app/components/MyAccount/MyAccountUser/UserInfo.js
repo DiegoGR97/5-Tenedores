@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, ImagePickerIOS } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Toast, { DURATION } from 'react-native-easy-toast';
+
 
 import UpdateUserInfo from './UpdateUserInfo';
 
 import * as firebase from "firebase";
+import * as Permissions from 'expo-permissions';
+import * as ImagePicker from "expo-image-picker";
+
+
 
 export default class UserInfo extends Component {
     constructor(props) {
@@ -100,6 +105,35 @@ export default class UserInfo extends Component {
         }
     }
 
+    uploadImage = async (uri, imageName) => {
+        console.log("URI:", uri);
+        console.log("imageName:", imageName);
+    }
+
+    changeAvatarUser = async () => {
+        //console.log("Change Avatar User.")
+        const permissionResult = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        //console.log(permissionResult)
+        if (permissionResult.status === "denied") {
+            this.refs.toast.show("Es necesario aceptar los permisos de galería.");
+        }
+        else {
+            console.log("Permisos de galería otorgados.")
+            const result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [4, 3]
+            })
+            //console.log("Result:", result);
+            if (result.cancelled) {
+                this.refs.toast.show("Has cerrado la galería.", 1500);
+            }
+            else {
+                console.log("Has seleccionado una imagen:", result);
+            }
+
+        }
+    }
+
     render() {
         const { displayName, email, photoURL } = this.state.userInfo;
         //console.log(this.checkUserAvatar(photoURL));
@@ -109,8 +143,11 @@ export default class UserInfo extends Component {
                     <Avatar
                         rounded
                         size="large"
+                        showEditButton
+                        onEditPress={() => this.changeAvatarUser()}
                         source={{ uri: this.checkUserAvatar(photoURL) }}
                         containerStyle={styles.userInfoAvatar}
+
                     />
                     <View>
                         <Text style={styles.displayName}> {displayName} </Text>
