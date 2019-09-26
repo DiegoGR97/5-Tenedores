@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Text, ImagePickerIOS } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Toast, { DURATION } from 'react-native-easy-toast';
+import solucionTimer from '../../../../lib/solucionTimer';
 
 
 import UpdateUserInfo from './UpdateUserInfo';
@@ -87,9 +88,6 @@ export default class UserInfo extends Component {
             this.refs.toast.show("Tu contraseña no es correcta.", 1500)
         })
 
-
-
-
     }
 
 
@@ -105,10 +103,41 @@ export default class UserInfo extends Component {
         }
     }
 
-    uploadImage = async (uri, imageName) => {
-        console.log("URI:", uri);
-        console.log("imageName:", imageName);
+    updateUserPhotoURL = async photoUri => {
+        const update = {
+            photoURL: photoUri
+        }
+        await firebase.auth().currentUser.updateProfile(update);
+        this.getUserInfo();
     }
+
+    uploadImage = async (uri, imageName) => {
+        //console.log("URI:", uri);
+        //console.log("imageName:", imageName);
+
+        /* return new Promise((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+              xhr.onerror = reject;
+              xhr.onreadystatechange = () => {
+                  if (xhr.readyState === 4) {
+                      resolve(xhr.response);
+                  }
+              }
+              xhr.open("GET", uri);
+              xhr.responseType = "blob";
+              xhr.send();
+        }).then(async resolve => { */
+        await fetch(uri)
+            .then(async resul => {
+                let ref = firebase.storage().ref().child("avatar/" + imageName);
+                return await ref.put(resolve);
+            }).catch(error => {
+                this.refs.toast.show(
+                    "Error al subir la imagen al servidor, inténtelo más tarde.",
+                    1500
+                );
+            })
+    };
 
     changeAvatarUser = async () => {
         //console.log("Change Avatar User.")
@@ -128,11 +157,27 @@ export default class UserInfo extends Component {
                 this.refs.toast.show("Has cerrado la galería.", 1500);
             }
             else {
+                const { uid } = this.state.userInfo;
                 console.log("Has seleccionado una imagen:", result);
+                this.uploadImage(result.uri, uid).then(resolve => {
+                    this.refs.toast.show("Avatar actualizado correctamente.");
+                    firebase.storage().ref("avatar/" + uid).getDownloadURL().then(resolve => {
+                        console.log(resolve);
+                        this.updateUserPhotoURL(resolve);
+                    }).catch(error => {
+                        this.refs.toast.show("Error al recuperar el avatar del servidor.", 1500);
+                    })
+                }).catch(error => {
+                    this.refs.toast.show(
+                        "Error al actualizar el avatar. Inténtelo más tarde. "
+                        + error)
+                });
             }
 
         }
     }
+
+
 
     render() {
         const { displayName, email, photoURL } = this.state.userInfo;
