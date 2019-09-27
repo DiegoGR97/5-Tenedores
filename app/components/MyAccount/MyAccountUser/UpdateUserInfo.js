@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { ListItem } from 'react-native-elements';
+import Toast, { DURATION } from 'react-native-easy-toast';
 
 import menuConfig from "./MenuConfig";
 import OverlayOneInput from "../../Elements/OverlayOneInput";
 import OverlayTwoInputs from '../../Elements/OverlayTwoInput';
+import OverlayThreeInputs from '../../Elements/OverlayThreeInput';
+import { fromBase64 } from 'bytebuffer';
 
 export default class UpdateUserInfo extends Component {
 
@@ -48,8 +51,12 @@ export default class UpdateUserInfo extends Component {
                     iconColorLeft: "#ccc",
                     iconNameRight: "chevron-right",
                     iconColorRight: "#ccc",
-                    onPress: () =>
-                        console.log('Click en "Cambiar Contraseña"')
+                    onPress: () => this.openOverlayThreeInputs(
+                        "Contraseña actual",
+                        "Nueva contraseña",
+                        "Repetir nueva contraseña",
+                        this.updateUserPassword
+                    )
 
                 }
             ]
@@ -94,10 +101,56 @@ export default class UpdateUserInfo extends Component {
         })
     }
 
+    updateUserPassword = async (currentPassword, newPassword, repeatNewPassword) => {
+        //console.log('currentPassword:', currentPassword);
+        //console.log('newPassword:', newPassword);
+        //console.log('repeatNewPassword:', repeatNewPassword);
+        if (currentPassword && newPassword && repeatNewPassword) {
+            if (newPassword === repeatNewPassword) {
+                if (currentPassword === newPassword) {
+                    this.refs.toast.show("La nueva contraseña no puede ser igual a la actual");
+                }
+                else {
+                    this.state.updateUserPassword(currentPassword, newPassword);
+                }
+
+            }
+            else {
+                this.refs.toast.show("La contraseña nueva no coincide.");
+            }
+        }
+        else {
+            this.refs.toast.show("Tiene que llenar todos los campos.")
+        }
+
+        //this.refs.toast.show("Toast funcionando.");
+        // TO DO - VALIDACIONES
+        this.setState({
+            overlayComponent: false
+        })
+    }
+
+    openOverlayThreeInputs = (placeholderOne, placeholderTwo, placeholderThree, updateFunction) => {
+        this.setState({
+            overlayComponent:
+                <OverlayThreeInputs
+                    isVisibleOverlay={true}
+                    placeholderOne={placeholderOne}
+                    placeholderTwo={placeholderTwo}
+                    placeholderThree={placeholderThree}
+                    updateFunction={updateFunction}
+                    inputValueOne=""
+                    inputValueTwo=""
+                    inputValueThree=""
+                    isPassword={true}
+                />
+        })
+    }
+
     updateUserEmail = async (newEmail, password) => {
         console.log("updateUserEmail()");
         const oldEmail = this.props.userInfo.email;
-        if (oldEmail != newEmail) {
+        if (oldEmail != newEmail && password) {
             this.state.updateUserEmail(newEmail, password);
         }
         this.setState({
@@ -131,6 +184,17 @@ export default class UpdateUserInfo extends Component {
                 ))}
 
                 {overlayComponent}
+
+                <Toast
+                    ref="toast"
+                    position="center"
+                    positionValue={0}
+                    fadeInDuration={1000}
+                    fadeOutDuration={1000}
+                    opacity={0.8}
+                    textStyle={{ color: "#fff" }}
+                />
+
 
 
             </View>

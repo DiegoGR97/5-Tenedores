@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, ImagePickerIOS } from 'react-native';
-import { Avatar } from 'react-native-elements';
+import { Avatar, Button } from 'react-native-elements';
 import Toast, { DURATION } from 'react-native-easy-toast';
 import solucionTimer from '../../../../lib/solucionTimer';
 
@@ -98,9 +98,32 @@ export default class UserInfo extends Component {
                     userInfo={this.state.userInfo}
                     updateUserDisplayName={this.updateUserDisplayName}
                     updateUserEmail={this.updateUserEmail}
+                    updateUserPassword={this.updateUserPassword}
                 />
             );
         }
+    }
+
+    updateUserPassword = async (currentPassword, newPassword) => {
+        //console.log("currentPassword:", currentPassword);
+        //console.log("newPassword:", newPassword);
+        this.reauthenticate(currentPassword).then(() => {
+            const user = firebase.auth().currentUser;
+            user.updatePassword(newPassword).then(() => {
+                this.refs.toast.show(
+                    "Contraseña actualizada correctamente. Vuelve a iniciar sesión.",
+                    1500,
+                    () => {
+                        firebase.auth().signOut();
+                    });
+            }).catch((error) => {
+                this.refs.toast.show("Error en el servidor. " + error, 1500);
+            })
+
+        }).catch(error => {
+            this.refs.toast.show("Tu contraseña actual introducida no es correcta.", 1500);
+
+        })
     }
 
     updateUserPhotoURL = async photoUri => {
@@ -202,6 +225,13 @@ export default class UserInfo extends Component {
                 </View>
                 {this.returnUpdateUserInfoComponent(this.state.userInfo)}
 
+                <Button
+                    title="Cerrar sesión"
+                    onPress={() => firebase.auth().signOut()}
+                    buttonStyle={styles.btnSignOut}
+                    titleStyle={styles.btnSignOutText}
+                />
+
                 <Toast
                     ref="toast"
                     position="bottom"
@@ -231,5 +261,20 @@ const styles = StyleSheet.create({
     },
     displayName: {
         fontWeight: "bold",
+    },
+    btnSignOut: {
+        marginTop: 30,
+        borderRadius: 0,
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#e3e3e3',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e3e3e3',
+        paddingTop: 15,
+        paddingBottom: 15
+    },
+    btnSignOutText: {
+        color: '#00a680'
+
     }
 });
