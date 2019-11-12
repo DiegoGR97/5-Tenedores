@@ -1,0 +1,18 @@
+Bracket Pair Colorizer de CoenraadS.
+ES7 React/Redux/GraphQL/React-Native snippets de dsznajder.
+HTML Snippets de Mohamed Abusaid.
+IntelliSense for CSS class names in HTML by Zignd.
+JavaScript (ES6) code snippets by charalampos karypidis.
+Material Icon Theme by Philipp Kief.
+(File -> Preferences -> File Icon Theme -> Now choose your file icon theme)
+Prettier - Code formatter by Esben Petersen
+(File -> Preferences -> Settings -> 'Save' -> 'Format on Save').
+React Native Snippet by Santosh Anand.
+React Native Snippet by Jundat95.
+Terminal by Jun Han.
+
+
+
+
+
+Material Icon Theme no me está funcionando. Googlear.
