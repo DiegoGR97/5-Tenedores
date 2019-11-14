@@ -1,11 +1,9 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 //import HomeScreen from "./app/screens/Home";
 import UserNavigation from "./app/navigations/User";
 
-import firebaseConfig from './app/utils/Firebase';
-import * as firebase from 'firebase';
-firebase.initializeApp(firebaseConfig);
+import { firebaseApp } from "./app/utils/Firebase";
 
 export default function App() {
   return (
@@ -17,6 +15,6 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
+    flex: 1
+  }
 });
