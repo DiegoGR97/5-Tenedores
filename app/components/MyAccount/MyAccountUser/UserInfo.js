@@ -162,6 +162,7 @@ export default class UserInfo extends Component {
               xhr.responseType = "blob";
               xhr.send();
         }).then(async resolve => { */
+
     await fetch(uri)
       .then(async result => {
         console.log("result:", result);

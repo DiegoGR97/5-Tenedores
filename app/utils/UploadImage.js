@@ -1,7 +1,8 @@
 import * as firebase from "firebase";
 
 export const uploadImage = async (uri, nameImage, folder) => {
-  /*   return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    /*
     let xhr = new XMLHttpRequest();
     xhr.onerror = reject;
     xhr.onreadystatechange = () => {
@@ -15,28 +16,34 @@ export const uploadImage = async (uri, nameImage, folder) => {
     xhr.send();
   })
     .then(async resolve => { */
-  await fetch(uri)
-    .then(async resolve => {
-      //console.log("resolve:", resolve);
-      const ref = firebase
-        .storage()
-        .ref()
-        .child(`${folder}/${nameImage}`);
-      await ref.put(resolve._bodyBlob);
-
-      return await firebase
-        .storage()
-        .ref(`${folder}/${nameImage}`)
-        .getDownloadURL()
-        .then(downloadURL => {
-          console.log("getDownloadURL:", downloadURL);
-          return downloadURL;
-        })
-        .catch(error => {
-          console.log("error en getDownloadUrl():", error);
-        });
-    })
-    .catch(error => {
-      console.log("Error en FETCH:", error);
-    });
+    fetch(uri)
+      .then(async resolvedImage => {
+        //console.log("resolvedImage:", resolvedImage);
+        const ref = firebase
+          .storage()
+          .ref()
+          .child(`${folder}/${nameImage}`);
+        ref
+          .put(resolvedImage._bodyBlob)
+          .then(() => {
+            firebase
+              .storage()
+              .ref(`${folder}/${nameImage}`)
+              .getDownloadURL()
+              .then(downloadURL => {
+                //console.log("getDownloadURL:", downloadURL);
+                resolve(downloadURL);
+              })
+              .catch(error => {
+                console.log("error en getDownloadUrl():", error);
+              });
+          })
+          .catch(error => {
+            console.log("Error en put:", error);
+          });
+      })
+      .catch(error => {
+        console.log("Error en FETCH:", error);
+      });
+  });
 };

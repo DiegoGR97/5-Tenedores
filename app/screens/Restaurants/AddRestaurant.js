@@ -87,17 +87,47 @@ export default class AddRestaurant extends Component {
 
   addRestaurant = () => {
     console.log("addRestaurant()");
-    console.log(this.state);
+    //console.log(this.state);
     const { imageUriRestaurant } = this.state;
     const { name, city, address, description } = this.state.formData;
 
-    uploadImage(imageUriRestaurant, "mifotorestaurante", "restaurants")
+    //Para probar la función uploadImage().
+    /* uploadImage(imageUriRestaurant, "mifotorestaurante", "restaurants")
       .then(response => {
         console.log("Todo correcto", response);
       })
       .catch(error => {
         console.log("error:", error);
-      });
+      }); */
+
+    if (imageUriRestaurant && name && city && address && description) {
+      //console.log("Formulario lleno.");
+      const data = {
+        name,
+        city,
+        address,
+        description,
+        image: ""
+      };
+      db.collection("restaurants")
+        .add({ data })
+        .then(addRestaurant => {
+          console.log("Restaurante añadido:", addRestaurant.id);
+          const restaurantId = addRestaurant.id;
+          uploadImage(imageUriRestaurant, restaurantId, "restaurants")
+            .then(uploadedImage => {
+              console.log("Todo correcto", uploadedImage);
+            })
+            .catch(error => {
+              console.log("error:", error);
+            });
+        })
+        .catch(error => {
+          this.refs.toast.show("Error de servidor. Inténtelo más tarde.");
+        });
+    } else {
+      this.refs.toast.show("Debes de llenar todos los campos.");
+    }
   };
 
   render() {

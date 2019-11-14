@@ -8,7 +8,7 @@ export default TextAreaTemplate = locals => {
       <Input
         placeholder={locals.config.placeholder}
         multiline={true}
-        conChangeText={value => locals.onChange(value)}
+        onChangeText={value => locals.onChange(value)}
         inputContainerStyle={styles.inputContainer}
       />
     </View>
