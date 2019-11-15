@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { Icon, Image, Button } from "react-native-elements";
+import { StyleSheet, View, ActivityIndicator } from "react-native";
+import { Icon, Image, Button, Text, Overlay } from "react-native-elements";
 //import { Permissions, ImagePicker } from "expo";
 import Toast, { DURATION } from "react-native-easy-toast";
 import * as Permissions from "expo-permissions";
@@ -23,6 +23,7 @@ export default class AddRestaurant extends Component {
   constructor() {
     super();
     this.state = {
+      loading: false,
       imageUriRestaurant: "",
       formData: {
         name: "",
@@ -90,6 +91,9 @@ export default class AddRestaurant extends Component {
     //console.log(this.state);
     const { imageUriRestaurant } = this.state;
     const { name, city, address, description } = this.state.formData;
+    this.setState({
+      loading: true
+    });
 
     //Para probar la función uploadImage().
     /* uploadImage(imageUriRestaurant, "mifotorestaurante", "restaurants")
@@ -102,31 +106,59 @@ export default class AddRestaurant extends Component {
 
     if (imageUriRestaurant && name && city && address && description) {
       //console.log("Formulario lleno.");
-      const data = {
-        name,
-        city,
-        address,
-        description,
-        image: ""
-      };
       db.collection("restaurants")
-        .add({ data })
+        .add({
+          name,
+          city,
+          address,
+          description,
+          image: "",
+          createdAt: new Date()
+        })
         .then(addRestaurant => {
           console.log("Restaurante añadido:", addRestaurant.id);
           const restaurantId = addRestaurant.id;
           uploadImage(imageUriRestaurant, restaurantId, "restaurants")
             .then(uploadedImage => {
               console.log("Todo correcto", uploadedImage);
+              const restaurantRef = db
+                .collection("restaurants")
+                .doc(restaurantId);
+
+              restaurantRef
+                .update({ image: uploadedImage })
+                .then(() => {
+                  console.log("Restaurante creado correctamente.");
+                  this.refs.toast.show(
+                    "Restaurante creado correctamente.",
+                    100,
+                    () => {
+                      this.props.navigation.goBack();
+                    }
+                  );
+                  this.setState({ loading: false });
+                })
+                .catch(error => {
+                  console.log("error en update:", error);
+                  this.refs.toast.show(
+                    "Error de servidor. Inténtelo más tarde."
+                  );
+                  this.setState({ loading: false });
+                });
             })
             .catch(error => {
-              console.log("error:", error);
+              console.log("error en uploadImage:", error);
+              this.refs.toast.show("Error de servidor. Inténtelo más tarde.");
+              this.setState({ loading: false });
             });
         })
         .catch(error => {
           this.refs.toast.show("Error de servidor. Inténtelo más tarde.");
+          this.setState({ loading: false });
         });
     } else {
       this.refs.toast.show("Debes de llenar todos los campos.");
+      this.setState({ loading: false });
     }
   };
 
@@ -162,6 +194,21 @@ export default class AddRestaurant extends Component {
             buttonStyle={styles.btnAddRestaurant}
           />
         </View>
+
+        <View></View>
+
+        <Overlay
+          overlayStyle={styles.overlayLoading}
+          isVisible={this.state.loading}
+          width="auto"
+          height="auto"
+        >
+          <View>
+            <Text style={styles.overlayLoadingText}>Creando Restaurante</Text>
+            <ActivityIndicator size="large" color="#00a680"></ActivityIndicator>
+          </View>
+        </Overlay>
+
         <Toast
           ref="toast"
           position="bottom"
@@ -204,5 +251,13 @@ const styles = StyleSheet.create({
   btnAddRestaurant: {
     backgroundColor: "#00a680",
     margin: 20
+  },
+  overlayLoading: {
+    padding: 20
+  },
+  overlayLoadingText: {
+    color: "#00a680",
+    marginBottom: 20,
+    fontSize: 20
   }
 });
