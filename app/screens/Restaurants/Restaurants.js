@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator
+} from "react-native";
+import { Image } from "react-native-elements";
 import ActionButton from "react-native-action-button";
 import Icon from "react-native-vector-icons/Ionicons";
 
@@ -18,7 +25,8 @@ export default class Restaurants extends Component {
       login: false,
       restaurants: null,
       startRestaurants: null,
-      restaurantsLimit: 8
+      restaurantsLimit: 8,
+      isLoading: true
     };
   }
 
@@ -68,7 +76,7 @@ export default class Restaurants extends Component {
         restaurants: restaurantsResult
       });
 
-      console.log("this.state.restaurants:", this.state.restaurants);
+      //console.log("this.state.restaurants:", this.state.restaurants);
     });
   };
 
@@ -92,10 +100,64 @@ export default class Restaurants extends Component {
       return null;
     }
   };
+
+  renderRow = restaurants => {
+    const {
+      name,
+      city,
+      address,
+      description,
+      image
+    } = restaurants.item.restaurant;
+
+    return (
+      <View styles={styles.viewRestaurant}>
+        <View styles={styles.viewRestaurantImage}>
+          <Image
+            resizeMode="cover"
+            source={{ uri: image }}
+            style={styles.restaurantImage}
+          />
+        </View>
+        <View>
+          <Text style={styles.flatlistRestaurantName}>{name}</Text>
+          <Text style={styles.flatlistRestaurantAddress}>
+            {city},{address}
+          </Text>
+          <Text style={styles.flatlistRestaurantDescription}>
+            {description.substr(0, 60)}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  loadRenderFlatList = restaurants => {
+    //console.log("Restaurants in loadRenderFlatlist:", restaurants);
+    //const { restaurants } = this.state;
+    if (restaurants) {
+      return (
+        <FlatList
+          data={restaurants}
+          renderItem={this.renderRow}
+          keyExtractor={(item, index) => index.toString()}
+        ></FlatList>
+      );
+    } else {
+      return (
+        <View style={styles.startLoadRestaurants}>
+          <ActivityIndicator size="large" />
+          <Text>Cargando restaurantes.</Text>
+        </View>
+      );
+    }
+  };
+
   render() {
+    const { restaurants } = this.state;
     return (
       <View style={styles.viewBody}>
-        <Text>Restaurants Screen.</Text>
+        {this.loadRenderFlatList(restaurants)}
         {this.loadActionButton()}
 
         {/* <ActionButton buttonColor="rgba(231,76,60,1)">
@@ -116,9 +178,36 @@ export default class Restaurants extends Component {
 
 const styles = StyleSheet.create({
   viewBody: {
-    flex: 1,
-    alignItems: "center",
+    flex: 1
+    /*  alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff"
+    backgroundColor: "#fff" */
+  },
+  startLoadRestaurants: {
+    marginTop: 20,
+    alignItems: "center"
+  },
+  viewRestaurant: {
+    flexDirection: "row",
+    margin: 10
+  },
+  viewRestaurantImage: {
+    marginRight: 15
+  },
+  restaurantImage: {
+    width: 80,
+    height: 80
+  },
+  flatlistRestaurantName: {
+    fontWeight: "bold"
+  },
+  flatlistRestaurantAddress: {
+    paddingTop: 2,
+    color: "grey"
+  },
+  flatlistRestaurantDescription: {
+    paddingTop: 2,
+    color: "grey",
+    width: 300
   }
 });
