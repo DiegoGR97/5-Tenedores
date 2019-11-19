@@ -4,7 +4,8 @@ import {
   View,
   Text,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
+  TouchableOpacity
 } from "react-native";
 import { Image } from "react-native-elements";
 import ActionButton from "react-native-action-button";
@@ -101,38 +102,40 @@ export default class Restaurants extends Component {
     }
   };
 
-  renderRow = restaurants => {
+  renderRow = restaurant => {
     const {
       name,
       city,
       address,
       description,
       image
-    } = restaurants.item.restaurant;
+    } = restaurant.item.restaurant;
 
     return (
-      <View styles={styles.viewRestaurant}>
-        <View styles={styles.viewRestaurantImage}>
-          <Image
-            resizeMode="cover"
-            source={{ uri: image }}
-            style={styles.restaurantImage}
-          />
+      <TouchableOpacity onPress={() => this.restaurantClick(restaurant)}>
+        <View style={styles.viewRestaurant}>
+          <View style={styles.viewRestaurantImage}>
+            <Image
+              resizeMode="cover"
+              source={{ uri: image }}
+              style={styles.restaurantImage}
+            />
+          </View>
+          <View>
+            <Text style={styles.flatlistRestaurantName}>{name}</Text>
+            <Text style={styles.flatlistRestaurantAddress}>
+              {city}, {address}
+            </Text>
+            <Text style={styles.flatlistRestaurantDescription}>
+              {description.substr(0, 80)}...
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text style={styles.flatlistRestaurantName}>{name}</Text>
-          <Text style={styles.flatlistRestaurantAddress}>
-            {city},{address}
-          </Text>
-          <Text style={styles.flatlistRestaurantDescription}>
-            {description.substr(0, 60)}
-          </Text>
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
-  loadRenderFlatList = restaurants => {
+  RenderFlatList = restaurants => {
     //console.log("Restaurants in loadRenderFlatlist:", restaurants);
     //const { restaurants } = this.state;
     if (restaurants) {
@@ -153,11 +156,15 @@ export default class Restaurants extends Component {
     }
   };
 
+  restaurantClick = restaurant => {
+    console.log("Haz realizado click en el restaurante", restaurant);
+  };
+
   render() {
     const { restaurants } = this.state;
     return (
       <View style={styles.viewBody}>
-        {this.loadRenderFlatList(restaurants)}
+        {this.RenderFlatList(restaurants)}
         {this.loadActionButton()}
 
         {/* <ActionButton buttonColor="rgba(231,76,60,1)">
@@ -203,7 +210,8 @@ const styles = StyleSheet.create({
   },
   flatlistRestaurantAddress: {
     paddingTop: 2,
-    color: "grey"
+    color: "grey",
+    width: 300
   },
   flatlistRestaurantDescription: {
     paddingTop: 2,
