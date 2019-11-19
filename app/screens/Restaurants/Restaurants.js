@@ -81,6 +81,7 @@ export default class Restaurants extends Component {
 
   goToScreen = screenName => {
     this.props.navigation.navigate(screenName);
+    //this.goToScreen("AddRestaurant")
   };
 
   loadActionButton = () => {
@@ -90,9 +91,11 @@ export default class Restaurants extends Component {
       return (
         <ActionButton
           buttonColor="#00a680"
-          onPress={() => {
-            this.goToScreen("AddRestaurant");
-          }}
+          onPress={() =>
+            this.props.navigation.navigate("AddRestaurant", {
+              loadRestaurants: this.loadRestaurants
+            })
+          }
         />
       );
     } else {
