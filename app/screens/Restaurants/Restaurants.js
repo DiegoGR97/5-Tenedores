@@ -25,7 +25,7 @@ export default class Restaurants extends Component {
     this.state = {
       login: false,
       restaurants: null,
-      startRestaurants: null,
+      startRestaurant: null,
       restaurantsLimit: 8,
       isLoading: true
     };
@@ -62,21 +62,19 @@ export default class Restaurants extends Component {
       .limit(restaurantsLimit);
 
     await restaurants.get().then(response => {
-      //console.log("response.docs:", response.docs);
       this.setState({
-        startRestaurants: response.docs[response.docs.length - 1]
+        startRestaurant: response.docs[response.docs.length - 1]
       });
       response.forEach(doc => {
         let restaurant = doc.data();
         restaurant.id = doc.id;
-        console.log("restaurant:", restaurant);
+        //console.log("restaurant:", restaurant);
         restaurantsResult.push({ restaurant });
       });
 
       this.setState({
         restaurants: restaurantsResult
       });
-
       //console.log("this.state.restaurants:", this.state.restaurants);
     });
   };
@@ -100,6 +98,50 @@ export default class Restaurants extends Component {
     } else {
       return null;
     }
+  };
+
+  handleLoadMore = async () => {
+    //console.log("Cargando nuevos restaurantes.");
+    const { restaurantsLimit, startRestaurant } = this.state;
+    let resultRestaurants = [];
+
+    this.state.restaurants.forEach(doc => {
+      resultRestaurants.push(doc);
+    });
+
+    /* console.log(
+      "startRestaurant.data().createdAt:",
+      startRestaurant.data().createdAt
+    ); */
+
+    const newRestaurants = db
+      .collection("restaurants")
+      .orderBy("createdAt", "desc")
+      .startAfter(startRestaurant.data().createdAt)
+      .limit(restaurantsLimit);
+
+    await newRestaurants.get().then(response => {
+      if (response.docs.length > 0) {
+        this.setState({
+          startRestaurant: response.docs[response.docs.length - 1]
+        });
+      } else {
+        //console.log("response.docs.length <= 0");
+        this.setState({
+          isLoading: false
+        });
+      }
+      response.forEach(doc => {
+        let restaurant = doc.data();
+        restaurant.id = doc.id;
+        resultRestaurants.push({ restaurant });
+        //console.log("restaurant:", restaurant);
+      });
+
+      this.setState({
+        restaurants: resultRestaurants
+      });
+    });
   };
 
   renderRow = restaurant => {
@@ -135,6 +177,22 @@ export default class Restaurants extends Component {
     );
   };
 
+  renderFooter = () => {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.restaurantsLoader}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.restaurantsNotFound}>
+          <Text>No quedan restaurantes por cargar...</Text>
+        </View>
+      );
+    }
+  };
+
   RenderFlatList = restaurants => {
     //console.log("Restaurants in loadRenderFlatlist:", restaurants);
     //const { restaurants } = this.state;
@@ -144,6 +202,9 @@ export default class Restaurants extends Component {
           data={restaurants}
           renderItem={this.renderRow}
           keyExtractor={(item, index) => index.toString()}
+          onEndReached={this.handleLoadMore}
+          onEndReachedThreshold={0}
+          ListFooterComponent={this.renderFooter}
         ></FlatList>
       );
     } else {
@@ -186,9 +247,6 @@ export default class Restaurants extends Component {
 const styles = StyleSheet.create({
   viewBody: {
     flex: 1
-    /*  alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff" */
   },
   startLoadRestaurants: {
     marginTop: 20,
@@ -217,5 +275,14 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     color: "grey",
     width: 300
+  },
+  restaurantsLoader: {
+    marginTop: 10,
+    marginBottom: 10
+  },
+  restaurantsNotFound: {
+    marginTop: 10,
+    marginBottom: 10,
+    alignItems: "center"
   }
 });
