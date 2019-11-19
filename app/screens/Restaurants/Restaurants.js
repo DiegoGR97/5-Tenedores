@@ -104,7 +104,7 @@ export default class Restaurants extends Component {
   };
 
   handleLoadMore = async () => {
-    //console.log("Cargando nuevos restaurantes.");
+    console.log("Cargando nuevos restaurantes.");
     const { restaurantsLimit, startRestaurant } = this.state;
     let resultRestaurants = [];
 
@@ -221,7 +221,7 @@ export default class Restaurants extends Component {
   };
 
   restaurantClick = restaurant => {
-    console.log("Haz realizado click en el restaurante", restaurant);
+    this.props.navigation.navigate("Restaurant", { restaurant });
   };
 
   render() {
