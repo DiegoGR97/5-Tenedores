@@ -206,7 +206,7 @@ export default class Restaurants extends Component {
           renderItem={this.renderRow}
           keyExtractor={(item, index) => index.toString()}
           onEndReached={this.handleLoadMore}
-          onEndReachedThreshold={0}
+          onEndReachedThreshold={0.1}
           ListFooterComponent={this.renderFooter}
         ></FlatList>
       );
