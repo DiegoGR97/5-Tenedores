@@ -29,6 +29,8 @@ export default class AddRestaurantReview extends Component {
     const ratingValue = this.refs.rating.state.position;
     // console.log("ratingValue:", ratingValue);
 
+    const user = firebase.auth().currentUser;
+
     this.setState({
       loading: true
     });
@@ -51,6 +53,7 @@ export default class AddRestaurantReview extends Component {
         //console.log("user:", user);
         const data = {
           idUser: user.uid,
+          avatarUser: user.photoURL,
           idRestaurant: this.props.navigation.state.params.id,
           title: validate.title,
           review: validate.review,

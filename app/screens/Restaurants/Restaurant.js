@@ -1,11 +1,20 @@
 import React, { Component } from "react";
-import { StyleSheet, View, ActivityIndicator } from "react-native";
-import { Image, Icon, ListItem, Button, Text } from "react-native-elements";
+import { StyleSheet, View, ActivityIndicator, ScrollView } from "react-native";
+import {
+  Image,
+  Icon,
+  ListItem,
+  Button,
+  Text,
+  Rating,
+  Avatar
+} from "react-native-elements";
 import Toast, { DURATION } from "react-native-easy-toast";
 
 import { firebaseApp } from "../../utils/Firebase";
 import firebase from "firebase/app";
 import "firebase/firestore";
+import { FlatList } from "react-native-gesture-handler";
 
 const db = firebase.firestore(firebaseApp);
 
@@ -13,10 +22,18 @@ export default class Restaurant extends Component {
   constructor(props) {
     super(props);
     //console.log("props:", props);
+
+    this.state = {
+      reviews: null,
+      startReview: null,
+      reviewsLimit: 5,
+      isLoading: true
+    };
   }
 
   componentDidMount() {
     this.checkAddReviewUser();
+    this.loadReviews();
   }
 
   checkUserLogin = () => {
@@ -104,6 +121,105 @@ export default class Restaurant extends Component {
     });
   };
 
+  loadReviews = async () => {
+    //console.log("Loading reviews...");
+    const { reviewsLimit } = this.state;
+    const {
+      id
+    } = this.props.navigation.state.params.restaurant.item.restaurant;
+
+    let reviewsResult = [];
+
+    const reviews = db
+      .collection("reviews")
+      .where("idRestaurant", "==", id)
+      .limit(reviewsLimit);
+    return await reviews.get().then(response => {
+      this.setState({
+        startReview: response.docs[response.docs.length - 1]
+      });
+
+      response.forEach(doc => {
+        let review = doc.data();
+        reviewsResult.push({ review });
+      });
+
+      this.setState({
+        reviews: reviewsResult
+      });
+
+      //console.log("this.state.reviews:", this.state.reviews);
+    });
+  };
+
+  renderFlatList = reviews => {
+    //console.log("reviews:", reviews);
+    if (reviews) {
+      return (
+        <FlatList
+          data={reviews}
+          renderItem={this.renderRow}
+          keyExtractor={(item, index) => index.toString()}
+          onEndReachedThreshold={0}
+        />
+      );
+    } else {
+      return (
+        <View style={styles.startLoadReviews}>
+          <ActivityIndicator size="large" />
+          <Text>Cargando Reviews</Text>
+        </View>
+      );
+    }
+  };
+
+  renderRow = reviewItem => {
+    //console.log("review en renderRow:", review);
+    console.log("reviewItem.item:", reviewItem.item);
+    console.log("reviewItem.item.review:", reviewItem.item.review);
+    const {
+      title,
+      review,
+      rating,
+      idUser,
+      createdAt,
+      avatarUser
+    } = reviewItem.item.review;
+    //console.log("title:", title);
+    const createReview = new Date(createdAt.seconds * 1000);
+    //console.log("avatarUser:", avatarUser);
+    //console.log("createReview:", createReview);
+
+    const avatar = avatarUser
+      ? avatarUser
+      : "https://api.adorable.io/avatars/285/abott@adorable.png";
+    return (
+      <View style={styles.viewReview}>
+        <View style={styles.viewImage}>
+          <Avatar
+            source={{
+              uri: avatar
+            }}
+            size="large"
+            rounded
+            containerStyle={styles.userAvatarImage}
+          />
+        </View>
+
+        <View style={styles.viewInfo}>
+          <Text style={styles.reviewTitle}>{title}</Text>
+          <Text style={styles.reviewText}>{review}</Text>
+          <Rating imageSize={15} startingValue={rating}></Rating>
+          <Text style={styles.reviewDate}>
+            {createReview.getDate()}/{createReview.getMonth() + 1}/
+            {createReview.getFullYear()} - {createReview.getHours()}:
+            {createReview.getMinutes()}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   render() {
     const {
       id,
@@ -113,6 +229,8 @@ export default class Restaurant extends Component {
       description,
       image
     } = this.props.navigation.state.params.restaurant.item.restaurant;
+
+    const { reviews } = this.state;
 
     const listExtraInfo = [
       {
@@ -124,7 +242,7 @@ export default class Restaurant extends Component {
     ];
 
     return (
-      <View style={styles.viewBody}>
+      <ScrollView style={styles.viewBody}>
         <View style={styles.viewImage}>
           <Image
             source={{ uri: image }}
@@ -155,6 +273,11 @@ export default class Restaurant extends Component {
           {this.loadButtonAddReview()}
         </View>
 
+        <View style={{ textAlign: "center" }}>
+          <Text style={styles.commentsTitle}>Comentarios</Text>
+        </View>
+        {this.renderFlatList(reviews)}
+
         <Toast
           ref="toast"
           position="bottom"
@@ -164,7 +287,7 @@ export default class Restaurant extends Component {
           opacity={0.8}
           textStyle={{ color: "#fff" }}
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -209,6 +332,48 @@ const styles = StyleSheet.create({
   },
   linkLoginText: {
     color: "#00a680",
+    fontWeight: "bold"
+  },
+  startLoadReviews: {
+    marginTop: 20,
+    alignItems: "center"
+  },
+  viewReview: {
+    flexDirection: "row",
+    margin: 10,
+    paddingBottom: 20,
+    borderBottomColor: "#e3e3e3",
+    borderBottomWidth: 1
+  },
+  viewImage: {
+    marginRight: 15
+  },
+  userAvatarImage: {
+    width: 50,
+    height: 50
+  },
+  viewInfo: {
+    flex: 1,
+    alignItems: "flex-start"
+  },
+  reviewTitle: {
+    fontWeight: "bold"
+  },
+  reviewText: {
+    paddingTop: 2,
+    color: "grey",
+    marginBottom: 5
+  },
+  reviewDate: {
+    marginTop: 5,
+    color: "grey",
+    fontSize: 12
+  },
+  commentsTitle: {
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 20,
     fontWeight: "bold"
   }
 });
