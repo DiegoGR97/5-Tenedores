@@ -26,7 +26,7 @@ export default class Reviews extends Component {
     this.state = {
       reviews: null,
       startReview: null,
-      reviewsLimit: 3,
+      reviewsLimit: 6,
       isLoading: true
     };
   }
@@ -39,12 +39,12 @@ export default class Reviews extends Component {
     //console.log("Loading reviews...");
     const { reviewsLimit } = this.state;
     /* const { id } = this.props.navigation.state.params.restaurant.item.restaurant; */
-    console.log(
+    /*  console.log(
       "this.props.navigation.state.params:",
       this.props.navigation.state.params
-    );
+    ); */
     const { id } = this.props.navigation.state.params;
-    console.log("id:", id);
+    //console.log("id:", id);
 
     let reviewsResult = [];
 
@@ -72,7 +72,7 @@ export default class Reviews extends Component {
           reviews: reviewsResult
         });
 
-        console.log("this.state.reviews:", this.state.reviews);
+        //console.log("this.state.reviews:", this.state.reviews);
       })
       .catch(error => {
         console.log("error en FB request en loadReviews:", error);
@@ -80,7 +80,7 @@ export default class Reviews extends Component {
   };
 
   handleLoadMore = async () => {
-    console.log("Cargando nuevos reviews.");
+    //console.log("Cargando nuevos reviews.");
     const { reviewsLimit, startReview } = this.state;
     const { id } = this.props.navigation.state.params;
     let resultReviews = [];

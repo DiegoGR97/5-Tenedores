@@ -95,6 +95,8 @@ export default class Restaurant extends Component {
       //console.log("reviewCount:", reviewCount);
 
       if (reviewCount > 0) {
+        /*Dejar el 'return false;' si se desea poder colocar
+        comentarios ilimitados por usuario. */
         //return true;
         return false;
       } else {
@@ -123,48 +125,6 @@ export default class Restaurant extends Component {
           name
         });
       }
-    });
-  };
-
-  handleLoadMore = async () => {
-    console.log("Cargando nuevos reviews.");
-    const { reviewsLimit, startReview } = this.state;
-    const {
-      id
-    } = this.props.navigation.state.params.restaurant.item.restaurant;
-    let resultReviews = [];
-
-    this.state.reviews.forEach(doc => {
-      resultReviews.push(doc);
-    });
-
-    const newReviews = db
-      .collection("reviews")
-      .where("idRestaurant", "==", id)
-      .orderBy("createdAt", "desc")
-      .startAfter(startReview.data().createdAt)
-      .limit(reviewsLimit);
-
-    await newReviews.get().then(response => {
-      if (response.docs.length > 0) {
-        this.setState({
-          startReview: response.docs[response.docs.length - 1]
-        });
-      } else {
-        //console.log("response.docs.length <= 0");
-        this.setState({
-          isLoading: false
-        });
-      }
-      response.forEach(doc => {
-        let review = doc.data();
-        resultReviews.push({ review });
-        //console.log("restaurant:", restaurant);
-      });
-
-      this.setState({
-        reviews: resultReviews
-      });
     });
   };
 
@@ -283,11 +243,6 @@ export default class Restaurant extends Component {
       id,
       name
     } = this.props.navigation.state.params.restaurant.item.restaurant;
-
-    this.props.navigation.navigate("AddRestaurantReview", {
-      id,
-      name
-    });
 
     return (
       <View style={styles.reviewsInvitationView}>
