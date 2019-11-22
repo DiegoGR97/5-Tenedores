@@ -18,6 +18,9 @@ import { FlatList } from "react-native-gesture-handler";
 
 const db = firebase.firestore(firebaseApp);
 
+/* ES IMPORTANTE NOTAR QUE NO SE PUEDE UTILIZAR EFICAZMENTE LAS PROPIAEDADES ON
+ onEndReached={} ni onEndReachedThreshold={} adentro de un ScrollView */
+
 export default class Restaurant extends Component {
   constructor(props) {
     super(props);
@@ -26,7 +29,7 @@ export default class Restaurant extends Component {
     this.state = {
       reviews: null,
       startReview: null,
-      reviewsLimit: 5,
+      reviewsLimit: 3,
       isLoading: true
     };
   }
@@ -92,11 +95,13 @@ export default class Restaurant extends Component {
       //console.log("reviewCount:", reviewCount);
 
       if (reviewCount > 0) {
-        return true;
+        //return true;
+        return false;
       } else {
         return false;
       }
     });
+    return false;
   };
 
   gotToScreenAddReview = () => {
@@ -121,6 +126,48 @@ export default class Restaurant extends Component {
     });
   };
 
+  handleLoadMore = async () => {
+    console.log("Cargando nuevos reviews.");
+    const { reviewsLimit, startReview } = this.state;
+    const {
+      id
+    } = this.props.navigation.state.params.restaurant.item.restaurant;
+    let resultReviews = [];
+
+    this.state.reviews.forEach(doc => {
+      resultReviews.push(doc);
+    });
+
+    const newReviews = db
+      .collection("reviews")
+      .where("idRestaurant", "==", id)
+      .orderBy("createdAt", "desc")
+      .startAfter(startReview.data().createdAt)
+      .limit(reviewsLimit);
+
+    await newReviews.get().then(response => {
+      if (response.docs.length > 0) {
+        this.setState({
+          startReview: response.docs[response.docs.length - 1]
+        });
+      } else {
+        //console.log("response.docs.length <= 0");
+        this.setState({
+          isLoading: false
+        });
+      }
+      response.forEach(doc => {
+        let review = doc.data();
+        resultReviews.push({ review });
+        //console.log("restaurant:", restaurant);
+      });
+
+      this.setState({
+        reviews: resultReviews
+      });
+    });
+  };
+
   loadReviews = async () => {
     //console.log("Loading reviews...");
     const { reviewsLimit } = this.state;
@@ -133,23 +180,32 @@ export default class Restaurant extends Component {
     const reviews = db
       .collection("reviews")
       .where("idRestaurant", "==", id)
+      .orderBy("createdAt", "desc")
       .limit(reviewsLimit);
-    return await reviews.get().then(response => {
-      this.setState({
-        startReview: response.docs[response.docs.length - 1]
-      });
 
-      response.forEach(doc => {
-        let review = doc.data();
-        reviewsResult.push({ review });
-      });
+    return await reviews
+      .get()
+      .then(response => {
+        //console.log("response:", response);
 
-      this.setState({
-        reviews: reviewsResult
-      });
+        this.setState({
+          startReview: response.docs[response.docs.length - 1]
+        });
 
-      //console.log("this.state.reviews:", this.state.reviews);
-    });
+        response.forEach(doc => {
+          let review = doc.data();
+          reviewsResult.push({ review });
+        });
+
+        this.setState({
+          reviews: reviewsResult
+        });
+
+        //console.log("this.state.reviews:", this.state.reviews);
+      })
+      .catch(error => {
+        console.log("error en FB request en loadReviews:", error);
+      });
   };
 
   renderFlatList = reviews => {
@@ -160,7 +216,9 @@ export default class Restaurant extends Component {
           data={reviews}
           renderItem={this.renderRow}
           keyExtractor={(item, index) => index.toString()}
-          onEndReachedThreshold={0}
+          /*  onEndReached={this.handleLoadMore}
+          onEndReachedThreshold={0.1} */
+          ListFooterComponent={this.renderFooter}
         />
       );
     } else {
@@ -175,8 +233,8 @@ export default class Restaurant extends Component {
 
   renderRow = reviewItem => {
     //console.log("review en renderRow:", review);
-    console.log("reviewItem.item:", reviewItem.item);
-    console.log("reviewItem.item.review:", reviewItem.item.review);
+    //console.log("reviewItem.item:", reviewItem.item);
+    //console.log("reviewItem.item.review:", reviewItem.item.review);
     const {
       title,
       review,
@@ -220,6 +278,34 @@ export default class Restaurant extends Component {
     );
   };
 
+  renderFooter = () => {
+    const {
+      id,
+      name
+    } = this.props.navigation.state.params.restaurant.item.restaurant;
+
+    this.props.navigation.navigate("AddRestaurantReview", {
+      id,
+      name
+    });
+
+    return (
+      <View style={styles.reviewsInvitationView}>
+        <Text
+          onPress={() =>
+            this.props.navigation.navigate("Reviews", {
+              id,
+              name
+            })
+          }
+          style={styles.linkLoginText}
+        >
+          VER MÁS REVIEWS
+        </Text>
+      </View>
+    );
+  };
+
   render() {
     const {
       id,
@@ -243,6 +329,7 @@ export default class Restaurant extends Component {
 
     return (
       <ScrollView style={styles.viewBody}>
+        {/* <View style={styles.viewBody}> */}
         <View style={styles.viewImage}>
           <Image
             source={{ uri: image }}
@@ -272,12 +359,6 @@ export default class Restaurant extends Component {
         <View style={styles.viewBtnAddReview}>
           {this.loadButtonAddReview()}
         </View>
-
-        <View style={{ textAlign: "center" }}>
-          <Text style={styles.commentsTitle}>Comentarios</Text>
-        </View>
-        {this.renderFlatList(reviews)}
-
         <Toast
           ref="toast"
           position="bottom"
@@ -287,6 +368,11 @@ export default class Restaurant extends Component {
           opacity={0.8}
           textStyle={{ color: "#fff" }}
         />
+
+        <View style={{ textAlign: "center" }}>
+          <Text style={styles.commentsTitle}>Comentarios</Text>
+        </View>
+        {this.renderFlatList(reviews)}
       </ScrollView>
     );
   }
@@ -375,5 +461,23 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
     fontWeight: "bold"
+  },
+  reviewsLoader: {
+    marginTop: 10,
+    marginBottom: 10
+  },
+  reviewsNotFound: {
+    marginTop: 10,
+    marginBottom: 10,
+    alignItems: "center"
+  },
+  seeMoreReviewsText: {
+    color: "#00a680",
+    fontWeight: "bold"
+  },
+  reviewsInvitationView: {
+    margin: 20,
+    flex: 1,
+    alignItems: "center"
   }
 });

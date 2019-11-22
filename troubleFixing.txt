@@ -16,3 +16,7 @@ var sharedBlacklist = [
   /heapCapture\/bundle\.js/,
   /.*\/__tests__\/.*/
 ];
+
+
+Es immportante crear un índice en Firestore de la forma que se demuestra en 
+la imagen en ./assests/refs/firestore index for restaurant reviews.jpg
