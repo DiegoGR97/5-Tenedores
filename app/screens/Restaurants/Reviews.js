@@ -178,7 +178,7 @@ export default class Reviews extends Component {
         <View style={styles.viewInfo}>
           <Text style={styles.reviewTitle}>{title}</Text>
           <Text style={styles.reviewText}>{review}</Text>
-          <Rating imageSize={15} startingValue={rating}></Rating>
+          <Rating readonly imageSize={15} startingValue={rating}></Rating>
           <Text style={styles.reviewDate}>
             {createReview.getDate()}/{createReview.getMonth() + 1}/
             {createReview.getFullYear()} - {createReview.getHours()}:

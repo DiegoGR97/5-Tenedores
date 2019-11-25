@@ -117,6 +117,9 @@ export default class AddRestaurant extends Component {
           address,
           description,
           image: "",
+          rating: 0,
+          ratingTotal: 0,
+          votesCount: 0,
           createdAt: new Date()
         })
         .then(addRestaurant => {

@@ -30,7 +30,8 @@ export default class Restaurant extends Component {
       reviews: null,
       startReview: null,
       reviewsLimit: 3,
-      isLoading: true
+      isLoading: true,
+      rating: 0
     };
   }
 
@@ -122,7 +123,8 @@ export default class Restaurant extends Component {
 
         this.props.navigation.navigate("AddRestaurantReview", {
           id,
-          name
+          name,
+          loadReviews: this.loadReviews
         });
       }
     });
@@ -136,6 +138,7 @@ export default class Restaurant extends Component {
     } = this.props.navigation.state.params.restaurant.item.restaurant;
 
     let reviewsResult = [];
+    let arrayRating = [];
 
     const reviews = db
       .collection("reviews")
@@ -155,10 +158,24 @@ export default class Restaurant extends Component {
         response.forEach(doc => {
           let review = doc.data();
           reviewsResult.push({ review });
+
+          arrayRating.push(doc.data().rating);
         });
 
+        let numSum = 0;
+        arrayRating.map(value => {
+          numSum = numSum + value;
+        });
+
+        const ratingCount = arrayRating.length;
+        const ratingResult = numSum / ratingCount;
+        const ratingResultFinish = ratingResult ? ratingResult : 0;
+
+        //console.log("ratingResult:", ratingResult.toFixed(2));
+
         this.setState({
-          reviews: reviewsResult
+          reviews: reviewsResult,
+          rating: ratingResultFinish
         });
 
         //console.log("this.state.reviews:", this.state.reviews);
@@ -213,7 +230,7 @@ export default class Restaurant extends Component {
       : "https://api.adorable.io/avatars/285/abott@adorable.png";
     return (
       <View style={styles.viewReview}>
-        <View style={styles.viewImage}>
+        <View style={styles.viewImageAvatar}>
           <Avatar
             source={{
               uri: avatar
@@ -227,7 +244,7 @@ export default class Restaurant extends Component {
         <View style={styles.viewInfo}>
           <Text style={styles.reviewTitle}>{title}</Text>
           <Text style={styles.reviewText}>{review}</Text>
-          <Rating imageSize={15} startingValue={rating}></Rating>
+          <Rating readonly imageSize={15} startingValue={rating}></Rating>
           <Text style={styles.reviewDate}>
             {createReview.getDate()}/{createReview.getMonth() + 1}/
             {createReview.getFullYear()} - {createReview.getHours()}:
@@ -271,7 +288,7 @@ export default class Restaurant extends Component {
       image
     } = this.props.navigation.state.params.restaurant.item.restaurant;
 
-    const { reviews } = this.state;
+    const { reviews, rating } = this.state;
 
     const listExtraInfo = [
       {
@@ -294,7 +311,15 @@ export default class Restaurant extends Component {
         </View>
 
         <View style={styles.viewRestaurantBasicInfo}>
-          <Text style={styles.restaurantName}>{name}</Text>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={styles.restaurantName}>{name}</Text>
+            <Rating
+              style={{ position: "absolute", right: 0 }}
+              imageSize={20}
+              readonly
+              startingValue={parseFloat(rating)}
+            />
+          </View>
           <Text style={styles.restaurantDescription}>{description}</Text>
         </View>
 
@@ -386,7 +411,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e3e3e3",
     borderBottomWidth: 1
   },
-  viewImage: {
+  viewImageAvatar: {
     marginRight: 15
   },
   userAvatarImage: {
