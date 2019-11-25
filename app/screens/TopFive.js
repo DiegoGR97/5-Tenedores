@@ -4,7 +4,8 @@ import {
   View,
   Text,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  TouchableOpacity
 } from "react-native";
 import { Card, Image, Rating } from "react-native-elements";
 
@@ -35,6 +36,7 @@ export default class TopFive extends Component {
     await restaurants.get().then(response => {
       response.forEach(doc => {
         let restaurant = doc.data();
+        restaurant.id = doc.id;
         console.log("restaurant:", restaurant);
         restaurantArray.push(restaurant);
       });
@@ -50,36 +52,53 @@ export default class TopFive extends Component {
       return (
         <View>
           {restaurants.map((restaurant, index) => {
+            let restaurantClick = {
+              item: {
+                restaurant: null
+              }
+            };
+            restaurantClick.item.restaurant = restaurant;
             return (
-              <Card key={index}>
-                <Image
-                  style={styles.restaurantImage}
-                  resizeMode="cover"
-                  source={{ uri: restaurant.image }}
-                />
-                <View style={styles.titleRating}>
-                  <Text style={styles.title}>{restaurant.name}</Text>
-                  <Rating
-                    imageSize={20}
-                    startingValue={restaurant.rating}
-                    readonly
-                    style={styles.rating}
-                  ></Rating>
-                </View>
-                <Text style={styles.description}>{restaurant.description}</Text>
-              </Card>
+              <TouchableOpacity
+                key={index}
+                onPress={() => this.restaurantClick(restaurantClick)}
+              >
+                <Card key={index}>
+                  <Image
+                    style={styles.restaurantImage}
+                    resizeMode="cover"
+                    source={{ uri: restaurant.image }}
+                  />
+                  <View style={styles.titleRating}>
+                    <Text style={styles.title}>{restaurant.name}</Text>
+                    <Rating
+                      imageSize={20}
+                      startingValue={restaurant.rating}
+                      readonly
+                      style={styles.rating}
+                    ></Rating>
+                  </View>
+                  <Text style={styles.description}>
+                    {restaurant.description}
+                  </Text>
+                </Card>
+              </TouchableOpacity>
             );
           })}
         </View>
       );
     } else {
       return (
-        <View>
+        <View style={styles.startLoadRestaurants}>
           <ActivityIndicator size="large" />
           <Text>Cargando Restaurantes</Text>
         </View>
       );
     }
+  };
+
+  restaurantClick = restaurant => {
+    this.props.navigation.navigate("Restaurant", { restaurant });
   };
 
   render() {
@@ -116,5 +135,9 @@ const styles = StyleSheet.create({
     color: "grey",
     marginTop: 10,
     textAlign: "justify"
+  },
+  startLoadRestaurants: {
+    marginTop: 20,
+    alignItems: "center"
   }
 });
