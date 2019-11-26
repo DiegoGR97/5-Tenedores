@@ -22,10 +22,10 @@ const db = firebase.firestore(firebaseApp);
 export default class AddRestaurant extends Component {
   constructor(props) {
     super(props);
-    console.log(
+    /* console.log(
       "this.props.navigation.state.params:",
       this.props.navigation.state.params
-    );
+    ); */
     this.state = {
       loading: false,
       imageUriRestaurant: "",
@@ -91,7 +91,7 @@ export default class AddRestaurant extends Component {
   };
 
   addRestaurant = () => {
-    console.log("addRestaurant()");
+    //console.log("addRestaurant()");
     //console.log(this.state);
     const { imageUriRestaurant } = this.state;
     const { name, city, address, description } = this.state.formData;
@@ -123,11 +123,11 @@ export default class AddRestaurant extends Component {
           createdAt: new Date()
         })
         .then(addRestaurant => {
-          console.log("Restaurante añadido:", addRestaurant.id);
+          //console.log("Restaurante añadido:", addRestaurant.id);
           const restaurantId = addRestaurant.id;
           uploadImage(imageUriRestaurant, restaurantId, "restaurants")
             .then(uploadedImage => {
-              console.log("Todo correcto", uploadedImage);
+              //console.log("Todo correcto", uploadedImage);
               const restaurantRef = db
                 .collection("restaurants")
                 .doc(restaurantId);
@@ -135,7 +135,7 @@ export default class AddRestaurant extends Component {
               restaurantRef
                 .update({ image: uploadedImage })
                 .then(() => {
-                  console.log("Restaurante creado correctamente.");
+                  //console.log("Restaurante creado correctamente.");
                   this.refs.toast.show(
                     "Restaurante creado correctamente.",
                     100,

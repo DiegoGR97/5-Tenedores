@@ -104,7 +104,7 @@ export default class Restaurants extends Component {
   };
 
   handleLoadMore = async () => {
-    console.log("Cargando nuevos restaurantes.");
+    //console.log("Cargando nuevos restaurantes.");
     const { restaurantsLimit, startRestaurant } = this.state;
     let resultRestaurants = [];
 

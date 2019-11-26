@@ -30,10 +30,10 @@ export default class Search extends Component {
     await restaurants
       .then(response => {
         resultRestaurants = response;
-        console.log("response:", response);
+        //console.log("response:", response);
       })
       .catch(error => {
-        console.log("error:", error);
+        //console.log("error:", error);
       });
 
     this.setState({

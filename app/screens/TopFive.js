@@ -26,7 +26,7 @@ export default class TopFive extends Component {
     this.loadTopFiveRestaurants();
   };
   loadTopFiveRestaurants = async () => {
-    console.log("Top 5 restaurants.");
+    //console.log("Top 5 restaurants.");
     const restaurants = db
       .collection("restaurants")
       .orderBy("rating", "desc")
@@ -37,13 +37,13 @@ export default class TopFive extends Component {
       response.forEach(doc => {
         let restaurant = doc.data();
         restaurant.id = doc.id;
-        console.log("restaurant:", restaurant);
+        //console.log("restaurant:", restaurant);
         restaurantArray.push(restaurant);
       });
       this.setState({
         restaurants: restaurantArray
       });
-      console.log("this.state:", this.state);
+      //console.log("this.state:", this.state);
     });
   };
 
