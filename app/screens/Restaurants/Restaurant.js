@@ -79,32 +79,38 @@ export default class Restaurant extends Component {
 
   checkAddReviewUser = () => {
     const user = firebase.auth().currentUser;
-    const userUID = user.uid;
-    const restaurantID = this.props.navigation.state.params.restaurant.item
-      .restaurant.id;
+    if (user) {
+      const userUID = user.uid;
+      //console.log("userUID:", userUID);
 
-    //console.log("userUID:", userUID);
-    //console.log("restaurantID:", restaurantID);
+      const restaurantID = this.props.navigation.state.params.restaurant.item
+        .restaurant.id;
 
-    const reviewsRef = db.collection("reviews");
-    const queryRef = reviewsRef
-      .where("idUser", "==", userUID)
-      .where("idRestaurant", "==", restaurantID);
+      //console.log("userUID:", userUID);
+      //console.log("restaurantID:", restaurantID);
 
-    return queryRef.get().then(resolve => {
-      const reviewCount = resolve.size;
-      //console.log("reviewCount:", reviewCount);
+      const reviewsRef = db.collection("reviews");
+      const queryRef = reviewsRef
+        .where("idUser", "==", userUID)
+        .where("idRestaurant", "==", restaurantID);
 
-      if (reviewCount > 0) {
-        /*Dejar el 'return false;' si se desea poder colocar
+      return queryRef.get().then(resolve => {
+        const reviewCount = resolve.size;
+        //console.log("reviewCount:", reviewCount);
+
+        if (reviewCount > 0) {
+          /*Dejar el 'return false;' si se desea poder colocar
         comentarios ilimitados por usuario. */
-        //return true;
-        return false;
-      } else {
-        return false;
-      }
-    });
-    return false;
+          //return true;
+          return false;
+        } else {
+          return false;
+        }
+      });
+    } else {
+      //console.log("El usuario no está logeado.");
+      return true;
+    }
   };
 
   gotToScreenAddReview = () => {
