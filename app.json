@@ -21,6 +21,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.diegogr97.cincotenedores",
       "permissions": ["CAMERA_ROLL"]
     }
   }
