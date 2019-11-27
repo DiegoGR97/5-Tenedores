@@ -29,7 +29,7 @@ export default class Restaurant extends Component {
     this.state = {
       reviews: null,
       startReview: null,
-      reviewsLimit: 3,
+      reviewsLimit: 4,
       isLoading: true,
       rating: 0
     };
@@ -194,16 +194,44 @@ export default class Restaurant extends Component {
   renderFlatList = reviews => {
     //console.log("reviews:", reviews);
     if (reviews) {
-      return (
-        <FlatList
-          data={reviews}
-          renderItem={this.renderRow}
-          keyExtractor={(item, index) => index.toString()}
-          /*  onEndReached={this.handleLoadMore}
-          onEndReachedThreshold={0.1} */
-          ListFooterComponent={this.renderFooter}
-        />
-      );
+      //console.log(reviews.length);
+
+      if (reviews.length > 3) {
+        let reviewsToRender = [];
+        for (let i = 0; i < 3; i++) {
+          reviewsToRender.push(reviews[i]);
+        }
+        //console.log("reviewsToRender:", reviewsToRender);
+
+        return (
+          <FlatList
+            data={reviewsToRender}
+            renderItem={this.renderRow}
+            keyExtractor={(item, index) => index.toString()}
+            /*  onEndReached={this.handleLoadMore}
+            onEndReachedThreshold={0.1} */
+            ListFooterComponent={this.renderFooter}
+          />
+        );
+      } else if (reviews.length > 0 && reviews.length <= 3) {
+        return (
+          <FlatList
+            data={reviews}
+            renderItem={this.renderRow}
+            keyExtractor={(item, index) => index.toString()}
+            /*  onEndReached={this.handleLoadMore}
+            onEndReachedThreshold={0.1} */
+            //ListFooterComponent={this.renderFooter}
+          />
+        );
+      } else if (reviews.length === 0) {
+        //console.log("No hay reviews.");
+        return (
+          <View style={styles.noReviewsFoundView}>
+            <Text>No hay reviews todavía para este restaurante.</Text>
+          </View>
+        );
+      }
     } else {
       return (
         <View style={styles.startLoadReviews}>
@@ -465,5 +493,11 @@ const styles = StyleSheet.create({
     margin: 20,
     flex: 1,
     alignItems: "center"
+  },
+  noReviewsFoundView: {
+    margin: 20,
+    flex: 1,
+    alignItems: "center",
+    marginTop: 10
   }
 });

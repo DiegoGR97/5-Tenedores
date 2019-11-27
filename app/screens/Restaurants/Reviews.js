@@ -26,7 +26,7 @@ export default class Reviews extends Component {
     this.state = {
       reviews: null,
       startReview: null,
-      reviewsLimit: 6,
+      reviewsLimit: 5,
       isLoading: true
     };
   }

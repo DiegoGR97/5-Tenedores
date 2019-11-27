@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { StyleSheet, View, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform
+} from "react-native";
 import { Button, Text, Image } from "react-native-elements";
 import Toast, { DURATION } from "react-native-easy-toast";
 
@@ -72,31 +78,40 @@ export default class Register extends Component {
 
   render() {
     const { registerStruct, registerOptions, formErrorMessage } = this.state;
+    const keyboardVerticalOffset = Platform.OS === "ios" ? 40 : 150;
+
     return (
       <View style={styles.viewBody}>
-        <View style={styles.centeredImage}>
-          <Image
-            source={require("../../../assets/img/5-tenedores-letras-icono-logo.png")}
-            containerStyle={styles.containerLogo}
-            style={styles.logo}
-            PlaceholderContent={<ActivityIndicator />}
-            resizeMode="contain"
-          />
-        </View>
+        <KeyboardAvoidingView
+          behavior="position"
+          keyboardVerticalOffset={keyboardVerticalOffset}
+        >
+          <View style={styles.centeredImage}>
+            <Image
+              source={require("../../../assets/img/5-tenedores-letras-icono-logo.png")}
+              containerStyle={styles.containerLogo}
+              style={styles.logo}
+              PlaceholderContent={<ActivityIndicator />}
+              resizeMode="contain"
+            />
+          </View>
 
-        <Form
-          ref="registerForm"
-          type={registerStruct}
-          options={registerOptions}
-          value={this.state.formData}
-          onChange={formValue => this.onChangeFormRegister(formValue)}
-        />
-        <Button
-          buttonStyle={styles.buttonRegisterContainer}
-          title="Registrar"
-          onPress={() => this.register()}
-        />
-        <Text style={styles.formErrorMessage}>{formErrorMessage} </Text>
+          <Form
+            ref="registerForm"
+            type={registerStruct}
+            options={registerOptions}
+            value={this.state.formData}
+            onChange={formValue => this.onChangeFormRegister(formValue)}
+          />
+          <Button
+            buttonStyle={styles.buttonRegisterContainer}
+            title="Registrar"
+            onPress={() => this.register()}
+          />
+
+          <Text style={styles.formErrorMessage}>{formErrorMessage} </Text>
+        </KeyboardAvoidingView>
+
         <Toast
           ref="toast"
           style={{ backgroundColor: "black" }}
