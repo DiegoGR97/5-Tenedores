@@ -4,7 +4,9 @@ import {
   View,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  BackHandler,
+  Alert
 } from "react-native";
 import { Button, Text, Image } from "react-native-elements";
 import Toast, { DURATION } from "react-native-easy-toast";
@@ -30,6 +32,54 @@ export default class Register extends Component {
       formErrorMessage: ""
     };
   }
+
+  componentDidMount() {
+    this.backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      this.handleBackPress
+    );
+  }
+
+  componentWillUnmount() {
+    this.backHandler.remove();
+  }
+
+  handleBackPress = () => {
+    const { formData } = this.state;
+    //console.log("Handling backPress.");
+    console.log("formData:", formData);
+    if (
+      formData.email != "" ||
+      formData.name != "" ||
+      formData.password != "" ||
+      formData.passwordConfirmation != ""
+    ) {
+      Alert.alert(
+        "¡Atención!",
+        "¿Seguro que quieres salir y descartar la información que ya escribiste?",
+        [
+          {
+            text: "No Salir",
+            onPress: () => {
+              return true;
+            },
+            style: "cancel"
+          },
+          {
+            text: "Salir",
+            onPress: () => {
+              this.props.navigation.navigate("Login");
+            }
+          }
+        ],
+        { cancelable: false }
+      );
+      return true;
+    } else {
+      console.log("FormData está vacío.");
+      return false;
+    }
+  };
 
   register = () => {
     const { password, passwordConfirmation } = this.state.formData;
