@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { StyleSheet, View, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  BackHandler,
+  Alert
+} from "react-native";
 import { AirbnbRating, Button, Text, Overlay } from "react-native-elements";
 import Toast, { DURATION } from "react-native-easy-toast";
 
@@ -19,9 +25,93 @@ export default class AddRestaurantReview extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false
+      loading: false,
+      formData: {
+        title: "",
+        review: ""
+      }
     };
   }
+
+  componentDidMount() {
+    this.backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      this.handleBackPress
+    );
+    //console.log(this.state);
+  }
+
+  componentWillUnmount() {
+    this.backHandler.remove();
+  }
+
+  handleBackPress = async () => {
+    //HACER ESTO CON STATES.
+    console.log(this.state);
+    let formData = await this.refs.addRestaurantReviewForm.getValue();
+    console.log("formData:", formData);
+    const ratingValue = this.refs.rating.state.position;
+    console.log("ratingValue:", ratingValue);
+    //console.log("Handling backPress.");
+    //console.log("this.state:", this.state);
+    let dataProvided = null;
+
+    if (formData != null || !(Number(ratingValue) === Number(0))) {
+      if (formData != null) {
+        if (formData.title != null || formData.review != null) {
+          dataProvided = true;
+        }
+      }
+      if (!(Number(ratingValue) === Number(0))) {
+        dataProvided = true;
+      }
+
+      console.log("dataProvided:", dataProvided);
+
+      if (dataProvided) {
+        //console.log("formData.title:", formData.title);
+        //console.log("formData.review:", formData.review);
+        /*   if (
+          (formData.title != "" && formData.title != null) ||
+          (formData.review != "" && formData.review != null)
+        ) { */
+        Alert.alert(
+          "¡Atención!",
+          "¿Seguro que quieres salir y descartar la información que ya escribiste?",
+          [
+            {
+              text: "No Salir",
+              onPress: () => {
+                return true;
+              },
+              style: "cancel"
+            },
+            {
+              text: "Salir",
+              onPress: () => {
+                this.props.navigation.goBack();
+              }
+            }
+          ],
+          { cancelable: false }
+        );
+        return true;
+        //}
+        /* } else {
+        console.log("FormData está vacío.");
+        return false; */
+        //}
+      } else {
+        console.log("FormData está vacío.");
+        this.props.navigation.goBack();
+        //return false;
+      }
+    } else {
+      console.log("FormData está vacío.");
+      this.props.navigation.goBack();
+      //return false;
+    }
+  };
 
   sendReview = () => {
     //console.log("Has enviado el formulario de review.");
@@ -105,6 +195,13 @@ export default class AddRestaurantReview extends Component {
     }
   };
 
+  onChangeFormRegister = formValue => {
+    this.setState({
+      formData: formValue
+    });
+    //console.log("this.state:", this.state);
+  };
+
   render() {
     const { loading } = this.state;
     return (
@@ -130,6 +227,8 @@ export default class AddRestaurantReview extends Component {
             ref="addRestaurantReviewForm"
             type={AddRestaurantReviewStruct}
             options={AddRestaurantReviewOptions}
+            value={this.state.formData}
+            onChange={formValue => this.onChangeFormRegister(formValue)}
           />
         </View>
 

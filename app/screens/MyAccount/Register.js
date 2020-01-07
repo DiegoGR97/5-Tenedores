@@ -68,7 +68,7 @@ export default class Register extends Component {
           {
             text: "Salir",
             onPress: () => {
-              this.props.navigation.navigate("Login");
+              this.props.navigation.goBack();
             }
           }
         ],
