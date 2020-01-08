@@ -46,71 +46,71 @@ export default class AddRestaurantReview extends Component {
   }
 
   handleBackPress = async () => {
-    //HACER ESTO CON STATES.
-    console.log(this.state);
-    let formData = await this.refs.addRestaurantReviewForm.getValue();
-    console.log("formData:", formData);
-    const ratingValue = this.refs.rating.state.position;
-    console.log("ratingValue:", ratingValue);
     //console.log("Handling backPress.");
-    //console.log("this.state:", this.state);
+
+    //HACER ESTO CON STATES.
+    // Lo que está comentado no funciona idealmente porque a veces la propiedad value
+    // del tag Form no es actualizada inmediatamente tras escribir en el form entonces
+    // a veces sí dejaba salir del form sin ningún prompt.
+
+    /*   let formValue = await this.refs.addRestaurantReviewForm.getValue();
+    console.log("formValue:", formValue); */
+
+    const ratingValue = this.refs.rating.state.position;
+    //console.log("ratingValue:", ratingValue);
+
+    const { formData } = this.state;
+    //console.log("formData:", formData);
+
     let dataProvided = null;
 
-    if (formData != null || !(Number(ratingValue) === Number(0))) {
-      if (formData != null) {
-        if (formData.title != null || formData.review != null) {
+    /* if (formValue != null || !(Number(ratingValue) === Number(0))) {
+      if (formValue != null) {
+        if (formValue.title != null || formValue.review != null) {
           dataProvided = true;
         }
-      }
-      if (!(Number(ratingValue) === Number(0))) {
-        dataProvided = true;
-      }
+      } */
+    if (!(Number(ratingValue) === Number(0))) {
+      dataProvided = true;
+    }
+    if (formData.title != "" || formData.review != "") {
+      dataProvided = true;
+    }
 
-      console.log("dataProvided:", dataProvided);
+    //console.log("dataProvided:", dataProvided);
 
-      if (dataProvided) {
-        //console.log("formData.title:", formData.title);
-        //console.log("formData.review:", formData.review);
-        /*   if (
-          (formData.title != "" && formData.title != null) ||
-          (formData.review != "" && formData.review != null)
-        ) { */
-        Alert.alert(
-          "¡Atención!",
-          "¿Seguro que quieres salir y descartar la información que ya escribiste?",
-          [
-            {
-              text: "No Salir",
-              onPress: () => {
-                return true;
-              },
-              style: "cancel"
+    if (dataProvided) {
+      Alert.alert(
+        "¡Atención!",
+        "¿Seguro que quieres salir y descartar la información que ya escribiste?",
+        [
+          {
+            text: "No Salir",
+            onPress: () => {
+              return true;
             },
-            {
-              text: "Salir",
-              onPress: () => {
-                this.props.navigation.goBack();
-              }
+            style: "cancel"
+          },
+          {
+            text: "Salir",
+            onPress: () => {
+              this.props.navigation.goBack();
             }
-          ],
-          { cancelable: false }
-        );
-        return true;
-        //}
-        /* } else {
-        console.log("FormData está vacío.");
-        return false; */
-        //}
-      } else {
-        console.log("FormData está vacío.");
-        this.props.navigation.goBack();
-        //return false;
-      }
+          }
+        ],
+        { cancelable: false }
+      );
+      return true;
     } else {
-      console.log("FormData está vacío.");
+      console.log("FormData y ratingValue vacíos.");
       this.props.navigation.goBack();
       //return false;
     }
+    /*  } else {
+      console.log("FormData está vacío.");
+      this.props.navigation.goBack();
+      //return false;
+    } */
   };
 
   sendReview = () => {
